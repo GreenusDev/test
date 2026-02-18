@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Test</title>
+</head>
+<body>
+<h2>로그인 테스트</h2>
+
+<input id="loginId" placeholder="아이디"><br><br>
+<input id="password" type="password" placeholder="비밀번호"><br><br>
+
+<button onclick="login()">로그인</button>
+<button onclick="logout()">로그아웃</button>
+<!--
+규칙: /oauth2/authorization/{registrationId}
+        -> registration 바로 아래에 쓴 그 이름이 기준.
+-->
+<a href="/oauth2/authorization/kakao"><img src="images/kakao_login_btn.png"></a>
+<a href="/oauth2/authorization/naver"><img src="images/naver_login_btn.png" height="45"></a> <!--카카오랑 크기맞추기-->
+
+<p id="result"></p>
+
+
+
+
+<script>
+    function login() {
+        fetch('/api/members/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', //필수
+            body: JSON.stringify({
+                loginId: document.getElementById('loginId').value,
+                password: document.getElementById('password').value
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('result').innerText =
+                JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+            document.getElementById('result').innerText = err;
+        });
+    }
+
+    function logout() {
+        fetch('/api/members/logout', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(res => {
+            document.getElementById('result').innerText =
+                res.ok ? '로그아웃 성공' : '로그아웃 실패';
+        });
+    }
+</script>
+</body>
+</html>
