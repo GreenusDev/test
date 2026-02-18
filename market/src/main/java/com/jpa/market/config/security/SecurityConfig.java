@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/main/**", "/api/items/**").permitAll()
                         .requestMatchers("/api/members/login", "/api/members/join").permitAll()
                         // 이미지 파일 경로 (리액트에서 엑박 뜨지 않게 허용)
-                        .requestMatchers("/images/**", "/**/*.html").permitAll()
+                        .requestMatchers("/images/**", "/**/*.html", "/").permitAll()
                         // ⭐ 기존 방법 변경하기
                         .requestMatchers("/login/oauth2**").permitAll()
                         //admin으로 시작하는 경로는 해당 계정이 admin일때만 접근가능하도록 설정

@@ -1,0 +1,74 @@
+spring:
+  datasource:
+    # 도커에 등록하여 보안처리
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # JPA 및 Hibernate 설정
+  jpa:
+    hibernate:
+      ddl-auto: validate # 개발 환경: create, 운영 환경: none 또는 validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  config:
+    import: application-oauth2.yaml
+
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      s3:
+        bucket: market-uploaded-files
+
+
+# 포트번호 설정
+server:
+  port: 8080
+  address: 0.0.0.0
+
+# 로깅 설정: 쿼리 파라미터(?) 값 출력
+logging:
+  level:
+    org:
+      hibernate:
+        # Spring Boot 3.x / Hibernate 6 이상 기준
+        orm:
+          jdbc:
+            bind: trace
+
+#필요없음
+#S3쓸꺼니까
+#file:
+#  upload:
+#    itemImgLocation: C:/shop/item
+#    uploadPath: file:///C:/shop/
+
+
+#file:
+#  server:
+#    base-url: "http://125.134.100.13:8080"
+#    upload-path: "/api/resources"
+#    username: "team05"
+#    password: "team05"
+#  # 원격 서버에 저장된 파일을 브라우저에서 볼 때 필요한 경로 (File Browser의 공개 링크 구조)
+#  display-path: "http://125.134.100.13:8080/api/public/dl"'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
