@@ -20,10 +20,13 @@ spring:
 
   cloud:
     aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
       region:
-        static: us-east-1
+        static: ${AWS_REGION}
       s3:
-        bucket: market-uploaded-files
+        bucket: ${AWS_S3_BUCKET}
 
 
 # 포트번호 설정
@@ -45,8 +48,7 @@ logging:
 #S3쓸꺼니까
 file:
   upload:
-    itemImgLocation: C:/shop/item
-    uploadPath: file:///C:/shop/
+    itemImgLocation:s3
 
 
 #file:
