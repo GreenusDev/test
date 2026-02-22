@@ -29,6 +29,10 @@ jobs:
           ls -l ./src/main/resources   # 파일 확인용 (옵션)
 
       # 4️⃣ Gradle 빌드
+
+      - name: Gradle 실행 권한 부여
+        run: chmod +x ./market/gradlew
+
       - name: 테스트 제외하고 빌드
         run: ./market/gradlew clean build -x test
 
