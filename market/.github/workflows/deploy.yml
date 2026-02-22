@@ -10,21 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ 코드 가져오기
       - name: GitHub 리포지토리에서 최신 코드 가져오기
         uses: actions/checkout@v4
 
+      # 2️⃣ JDK 17 설치
       - name: JDK 17 설치
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: application.yml 파일 생성
-        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yaml
+      # 3️⃣ secrets 기반 application.yml 생성
+      - name: secrets 기반 application.yml 생성
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
+          ls -l ./src/main/resources   # 파일 확인용 (옵션)
 
-      - name: 테스트 및 빌드
+      # 4️⃣ Gradle 빌드
+      - name: 테스트 제외하고 빌드
         run: ./gradlew clean build -x test
 
+      # 5️⃣ AWS 인증
       - name: AWS 인증 정보 설정
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -32,20 +40,25 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      # 6️⃣ ECR 로그인
       - name: AWS ECR 로그인
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 7️⃣ Docker 이미지 생성
       - name: Docker 이미지 생성
         run: docker build -t market-server:${{ github.sha }} .
 
+      # 8️⃣ Docker 이미지 태그
       - name: Docker 이미지 태그
         run: docker tag market-server:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/market-server:${{ github.sha }}
 
+      # 9️⃣ Docker 이미지 ECR에 push
       - name: Docker 이미지 ECR에 push
         run: docker push ${{ steps.login-ecr.outputs.registry }}/market-server:${{ github.sha }}
 
-      - name: EC2 접속 후 기존 컨테이너 제거 및 새 컨테이너 실행
+      # 🔟 EC2에서 기존 컨테이너 제거 & 새 컨테이너 실행
+      - name: EC2 접속 후 Green Deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
