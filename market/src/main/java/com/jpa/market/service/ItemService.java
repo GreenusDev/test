@@ -88,7 +88,7 @@ public class ItemService {
         item.updateItem(itemFormDto);
 
         // 2. [핵심] 기존 이미지 싹 삭제 (물리 파일 + DB 데이터)
-        itemImgService.deleteItemImgs(item);
+        itemImgService.deleteItemImg(item);
 
         // 3. 새로 넘어온 파일 리스트를 다시 하나씩 저장 (Insert)
         for (int i = 0; i < itemImgFileList.size(); i++) {
