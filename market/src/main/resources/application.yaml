@@ -9,7 +9,7 @@ spring:
   # JPA 및 Hibernate 설정
   jpa:
     hibernate:
-      ddl-auto: validate # 개발 환경: create, 운영 환경: none 또는 validate
+      ddl-auto: update # 개발 환경: create, 운영 환경: none 또는 validate
     show-sql: false
     properties:
       hibernate:
