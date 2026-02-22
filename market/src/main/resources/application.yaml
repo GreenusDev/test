@@ -43,10 +43,9 @@ logging:
 
 #필요없음
 #S3쓸꺼니까
-#file:
-#  upload:
-#    itemImgLocation: C:/shop/item
-#    uploadPath: file:///C:/shop/
+file:
+  upload:
+    itemImgLocation: s3
 
 
 #file:
