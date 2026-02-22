@@ -30,7 +30,7 @@ jobs:
 
       # 4️⃣ Gradle 빌드
       - name: 테스트 제외하고 빌드
-        run: ./gradlew clean build -x test
+        run: ./market/gradlew clean build -x test
 
       # 5️⃣ AWS 인증
       - name: AWS 인증 정보 설정
