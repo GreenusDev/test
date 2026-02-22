@@ -38,7 +38,6 @@ jobs:
 
       - name: Docker 이미지 생성
         run: docker build -t market-server:${{ github.sha }} .
-        # => 커밋 SHA를 태그로 사용
 
       - name: Docker 이미지 태그
         run: docker tag market-server:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/market-server:${{ github.sha }}
@@ -58,4 +57,4 @@ jobs:
             docker stop market-server || true
             docker rm market-server || true
             docker pull ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
-            docker run -d --name market-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
+            docker run -d --name market-server -p 8082:8080 ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
