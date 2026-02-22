@@ -1,59 +1,80 @@
 package com.jpa.market.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor    //추가
 public class FileService {
 
-    public String uploadFile(String uploadPath, String originalFileName, byte[] fileData) throws Exception{
+    //추가
+    private final S3Client s3Client;
 
-        // UUID를 생성하여 uuid 변수에 할당합니다.
-        // 이는 서로 다른 개체들을 구별하기위해  고유한 파일 이름을 생성하기 위해 사용됩니다.
+    //추가
+    @Value("${spring.cloud.aws.s3.bucket}")
+    private String bucketName;
+
+    @Value("${spring.cloud.aws.region.static}")
+    private String region;
+
+    //상황에 따라 다른 폴더에 저장하도록 설정
+    // folder 파라미터를 추가하여 "items" 또는 "users" 등을 전달받음
+    public String uploadFile(String folder, //변경
+                             String originalFileName,
+                             byte[] fileData) throws Exception {
+
+        //uuid를 이용하여 고유한 파일 이름을 생성하기 위해 사용
         UUID uuid = UUID.randomUUID();
 
-        //originalFileName에서 마지막 점(.) 이후의 문자열을 추출하여 확장자를 가져옵니다.
+        //확장자 추출
         String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
 
-        //UUID와 확장자를 결합하여 저장될 파일 이름을 생성합니다.
+        //uuid와 확장자를 결합하여 저장할 파일명 생성
         String savedFileName = uuid.toString() + extension;
 
-        //파일이 업로드될 전체 경로를 생성합니다.
-        String fileUploadFullUrl = uploadPath + "/" + savedFileName;
+        // S3 내의 최종 경로 (예: items/uuid.jpg)
+        String key = folder + "/" + savedFileName;
 
-        //일 출력 스트림을 생성합니다.
-        //파일 경로에 해당하는 파일을 생성하거나 덮어씁니다.
-        FileOutputStream fos = new FileOutputStream(fileUploadFullUrl);
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType("image/jpeg") // 실제론 파일 타입에 맞춰 동적 세팅 가능
+                .build();
 
-        //fileData의 내용을 파일에 기록합니다.
-        fos.write(fileData);
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileData));
 
-        //파일 출력 스트림을 닫습니다.
-        fos.close();
+        //메서드 추가
+        return getUploadUrl(key); // (삭제를 위해 key는 별도로 관리하거나 DB의 imgName에 저장하세요)
 
-        //저장된 파일 이름을 반환합니다.
-        return savedFileName;
     }
 
-    public void deleteFile(String filePath) throws Exception{
+    //등록된 파일 삭제
+    public void deleteFile(String key) throws Exception {
 
-        //주어진 filePath에 해당하는 파일을 나타내는 File 객체를 생성합니다.
-        File deleteFile = new File(filePath);
+        //다지우고 새로쓰기
 
-        //삭제할 파일이 실제로 존재하는지 확인합니다.
-        if(deleteFile.exists()) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key) // S3 내의 경로 (folder/savedFileName)
+                .build();
 
-            // 파일을 삭제합니다.
-            deleteFile.delete();
+        s3Client.deleteObject(deleteObjectRequest);
+        System.out.println(key + " : S3에서 파일 삭제 완료");
 
-            //파일 삭제에 성공한 경우 로그를 출력합니다.
-            System.out.println("파일을 삭제하였습니다.");
-        } else {
-            System.out.println("파일이 존재하지 않습니다.");
-        }
     }
 
+    public String getUploadUrl(String key) {
+
+        //문자열 조합하기 위해서 %s 사용
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+    }
 }
