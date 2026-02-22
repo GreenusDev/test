@@ -45,7 +45,8 @@ logging:
 #S3쓸꺼니까
 file:
   upload:
-    itemImgLocation: s3
+    itemImgLocation: C:/shop/item
+    uploadPath: file:///C:/shop/
 
 
 #file:
