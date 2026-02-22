@@ -53,6 +53,7 @@ jobs:
       # 7️⃣ Docker 이미지 생성
       - name: Docker 이미지 생성
         run: docker build -t market-server:${{ github.sha }} .
+        working-directory: ./market
 
       # 8️⃣ Docker 이미지 태그
       - name: Docker 이미지 태그
