@@ -55,10 +55,7 @@ jobs:
           script_stop: true
           script: |
             VERSION=${{ github.sha }}
-            # 기존 컨테이너 중지 및 제거
             docker stop market-server || true
             docker rm market-server || true
-            # 최신 이미지 pull
             docker pull ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
-            # 컨테이너 실행 (포트 8080)
             docker run -d --name market-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
