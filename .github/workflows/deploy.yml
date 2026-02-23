@@ -78,6 +78,6 @@ jobs:
             | docker login --username AWS --password-stdin 245140949573.dkr.ecr.us-east-1.amazonaws.com
             
             docker stop market-server || true
-            docker rm market-server || true
+            docker rm market-server || true 
             docker pull ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
             docker run -d --name market-server -p 8082:8080 ${{ steps.login-ecr.outputs.registry }}/market-server:$VERSION
