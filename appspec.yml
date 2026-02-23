@@ -1,0 +1,26 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ubuntu/market-server
+
+#S3에서 내려온 파일을
+#EC2에 복사한 후
+#파일 소유자/권한을 설정해주는 옵션
+permissions:
+  - object: /home/ubuntu/market-server
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
+    type:
+      - directory
+      - file
+
+# CodeDeploy가 배포 과정 중
+# “어느 시점에 어떤 스크립트를 실행할지” 정하는 것
+hooks:
+  AfterInstall:
+    - location: scripts/start-server.sh
+      timeout: 300
+      runas: ubuntu

@@ -1,0 +1,35 @@
+name: CodeDeploy Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: AWS 인증
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: 배포 파일 압축
+        run: zip -r deploy.zip . -x ".git/*"
+
+      - name: S3 업로드
+        run: aws s3 cp deploy.zip s3://market-uploaded-files/deploy.zip
+
+
+      - name: CodeDeploy 실행
+        run: |
+          aws deploy create-deployment \
+            --application-name market-server \
+            --deployment-group-name market \
+            --s3-location bucket=market-uploaded-files,bundleType=zip,key=deploy.zip
