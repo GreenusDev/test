@@ -20,6 +20,26 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Docker 이미지 빌드
+        run: docker build -t market-server:${{ github.sha }} .
+
+      # 4️⃣ ECR 로그인
+      - name: ECR 로그인
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 5️⃣ Docker 태그 & 푸시
+      - name: Docker 태그 & 푸시
+        run: |
+          # SHA 태그
+          docker tag market-server:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/market-server:${{ github.sha }}
+          # latest 태그
+          docker tag market-server:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/market-server:latest
+          
+          # ECR에 푸시
+          docker push ${{ steps.login-ecr.outputs.registry }}/market-server:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/market-server:latest
+
       - name: 배포 파일 압축
         run: zip -r deploy.zip . -x ".git/*"
 
