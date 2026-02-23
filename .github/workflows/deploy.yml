@@ -74,8 +74,8 @@ jobs:
             VERSION=${{ github.sha }}
             
             # EC2에서 ECR 로그인 추가
-            aws ecr get-login-password --region ap-northeast-2 \
-            | docker login --username AWS --password-stdin [본인 ECR 레지스트리 주소]
+            aws ecr get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin 245140949573.dkr.ecr.us-east-1.amazonaws.com
             
             docker stop market-server || true
             docker rm market-server || true
