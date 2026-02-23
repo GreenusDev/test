@@ -13,6 +13,24 @@ jobs:
       - name: 코드 가져오기
         uses: actions/checkout@v4
 
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: secrets 기반 application.yml 생성
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
+          ls -l ./src/main/resources
+      - name: Gradle 실행 권한 부여
+        run: chmod +x ./market/gradlew
+
+      - name: 테스트 및 빌드
+        run: ./gradlew clean build -x test
+        working-directory: ./market
+
       - name: AWS 인증
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -23,12 +41,13 @@ jobs:
       - name: Docker 이미지 빌드
         run: docker build -t market-server:${{ github.sha }} ./market
 
-      # 4️⃣ ECR 로그인
       - name: ECR 로그인
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # 5️⃣ Docker 태그 & 푸시
+      - name: Docker 이미지 생성
+        run: docker build -t market-server:${{ github.sha }} ./market
+
       - name: Docker 태그 & 푸시
         run: |
           # SHA 태그
